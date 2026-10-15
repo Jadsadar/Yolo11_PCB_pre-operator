@@ -71,6 +71,26 @@ py -3.10 -m venv .venv
 
 ไฟล์ requirements ตรึงเวอร์ชันที่ติดตั้งและผ่านการตรวจซอฟต์แวร์ใน workspace นี้ การติดตั้ง dependency ต้องใช้อินเทอร์เน็ต แต่แอปตรวจภาพทำงานออฟไลน์หลังเตรียมโมเดลแล้ว Runtime เก็บค่า Ultralytics ที่ `.runtime/` และปิดการดาวน์โหลด dependency อัตโนมัติ สำหรับ GPU ให้ติดตั้ง PyTorch/torchvision รุ่น CUDA ที่เข้าคู่กันจากคำแนะนำของ PyTorch และบันทึก environment ของการทดลองใหม่
 
+## Colab Free และการเทรนต่อจาก Google Drive
+
+เปิด [Notebook บน Colab](https://colab.research.google.com/github/Jadsadar/Yolo11_PCB_pre-operator/blob/main/notebooks/colab_train.ipynb) หรือดูไฟล์ [notebooks/colab_train.ipynb](notebooks/colab_train.ipynb) เลือก GPU runtime แล้วรัน cell ตามลำดับ Notebook เตรียม Git LFS, dataset ใน `/content`, dependency สำหรับ Colab และ mount Google Drive โดยผู้ใช้อนุญาตผ่านหน้าจอ Colab
+
+ตั้ง `NEW_RUN = False` เพื่อทำงานต่อใน experiment ล่าสุดของ `MyDrive/PCB_YOLO11/experiments/`:
+
+- ครั้งแรกเริ่มจาก pretrained YOLO11n และบันทึก `best.pt`, `last.pt`, metrics และ TensorBoard ลง Drive ระหว่างฝึก
+- หลังจบแต่ละ epoch เก็บ `resume.pt` และ `resume_previous.pt` เป็น snapshot พร้อม optimizer state สองรุ่นล่าสุด เพื่อเป็นทางเลือกหาก `last.pt` เขียนไม่สำเร็จ
+- เมื่อ usage หมด ให้รอจนได้ GPU runtime อีกครั้ง แล้วรัน Notebook ตั้งแต่ต้นด้วย Drive folder เดิม โค้ดเลือก checkpoint ที่อ่านได้และมี epoch ล่าสุดเพื่อใช้ `resume=True`
+- ถ้า experiment จบแล้วจะแสดงตำแหน่งโมเดลและไม่เริ่มซ้ำ หากต้องการทดลองใหม่ให้ตั้ง `NEW_RUN = True`
+- หากข้อมูลเปลี่ยนจาก manifest เดิมจะหยุดการ resume เพื่อไม่ปะปนการทดลอง
+
+งานใน epoch ที่ยังไม่บันทึกต้องทำใหม่ การถูกลบ runtime ทันทีไม่สามารถเรียกโค้ด save ตอนจบได้ จึงต้องเขียนลง Drive ทุก epoch ตั้งแต่ต้น การ sync ของ Drive ยังอาจล่าช้าหรือเกิดข้อผิดพลาดได้ และไม่รับประกันการกู้คืนหากไฟล์ checkpoint ทุกชุดเสียหาย สคริปต์จะหยุดแจ้งเหตุเมื่อไม่มี checkpoint ที่ใช้ได้ แทนการเริ่มใหม่โดยไม่แจ้ง
+
+Notebook ไม่เริ่ม runtime ใหม่หรือข้ามข้อจำกัด usage อัตโนมัติ ผู้ใช้ต้องกลับมารัน Notebook หลังทรัพยากรพร้อม การ resume ใช้เป้าหมายจำนวน epochs ของ checkpoint เดิม และใช้ checkpoint ที่สร้างโดยโครงการนี้กับ Ultralytics รุ่นเดียวกัน
+
+ตัว runner คือ `python -m scripts.colab_train --config <config> --project <Drive experiment folder> --execute --leakage-note "<ผลทบทวนภาพซ้ำ>"` หากไม่ใส่ `--execute` จะแสดงแผนอย่างเดียว Dependency สำหรับ Notebook อยู่ใน [requirements-colab.txt](requirements-colab.txt) เพื่อใช้ PyTorch/CUDA ของ Colab และไม่ติดตั้งส่วน PyQt6
+
+อ้างอิง: [Ultralytics resume](https://docs.ultralytics.com/modes/train/#resuming-interrupted-trainings) และ [ข้อจำกัด runtime/Drive ของ Colab](https://research.google.com/colaboratory/faq.html)
+
 ## โครงสร้าง dataset
 
 ใช้โฟลเดอร์เดิมตามแผน โดย `valid` เป็นโฟลเดอร์ validation และ key ใน YAML ใช้ `val`:

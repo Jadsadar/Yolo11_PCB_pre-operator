@@ -8,13 +8,14 @@
 
 ## ผลตรวจซอฟต์แวร์
 
-- `python -m unittest discover -s tests -v`: ผ่าน 24 กรณี รวม pipeline, SQLite, UI, adapter ของ Ultralytics และ TensorBoard
+- `python -m unittest discover -s tests -v`: ผ่าน 35 กรณี รวม pipeline, SQLite, UI, adapter ของ Ultralytics, TensorBoard และการเก็บ/กู้ checkpoint
 - `python -m compileall -q app scripts main.py`: ผ่านในระหว่างพัฒนา
 - `python -m pip check`: ไม่พบ dependency ที่ขัดกัน
 - ตรวจภาพหน้าจอ Qt offscreen และแก้การโหลดฟอนต์ภาษาไทยให้แสดงผลได้
 - คำสั่ง `python -m scripts.train` ทำ dry run สำเร็จ ค่า `training_started` เป็น `false`
 - คำสั่ง evaluate แบบไม่ใส่ `--execute` แสดงแผนโดยไม่ประเมินโมเดล
 - TensorBoard 2.21.0: ทดสอบเขียนและอ่าน event log แยกสอง run ด้วยค่า epoch จำลอง พบ Loss, mAP และ Learning Rate ตามค่าที่ส่ง รวมทั้งทดสอบปิดและเปิด callback ใหม่ และตรวจคำสั่งเปิดโปรแกรมได้ โดยไม่เริ่มเทรน
+- Colab runner: จำลองการถูกขัดจังหวะ การเขียน snapshot ล้มเหลว checkpoint เสีย การเปลี่ยนชุดข้อมูล และการเทรนจบแล้ว ตรวจเลือก checkpoint และค่า resume ได้โดยไม่ฝึกจริง พร้อมตรวจ syntax ของ code cell ใน Notebook แล้ว ยังไม่ได้รันบน GPU/Google Drive ของ Colab จริง
 
 กรณี UI ใช้ผลจำลองที่กำหนดแน่นอน รวมทั้ง fixture ที่เปิดการบันทึกเพื่อทดสอบระบบจริงส่วนไฟล์/ฐานข้อมูล ส่วน adapter สร้าง YOLO11 น้ำหนักสุ่มชั่วคราวแล้วรัน inference กับภาพสังเคราะห์โดยไม่เรียก train จึงตรวจ API ได้แต่ไม่เป็นผลทดลองคุณภาพของโมเดล
 
