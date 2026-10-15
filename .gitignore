@@ -1,0 +1,54 @@
+# Local Python environments and caches
+.venv/
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Dataset is extracted separately on each machine (keep tests/ tracked).
+/train/
+/valid/
+/test/
+/datasets/
+*.zip
+*.7z
+*.rar
+*.tar
+*.tar.gz
+*.tgz
+
+# Local data, experiment outputs, and TensorBoard events
+data/*.db*
+outputs/
+logs/
+tmp/
+experiments/
+events.out.tfevents.*
+/reports/*.json
+
+# Downloaded/trained weights and generated model bundle metadata
+models/**/*.pt
+models/**/*.onnx
+models/**/metadata.json
+models/**/*.source.json
+*.download
+
+# Machine-specific runtime and editor settings
+.runtime/
+Ultralytics/
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+.env
+.env.*
+!.env.example
+
+# Original reports, private internship material, and obsolete road-demo files
+/report/
+/hello_qt.py
+/overview.md

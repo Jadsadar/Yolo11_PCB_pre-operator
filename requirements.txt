@@ -1,0 +1,9 @@
+# Versions available in this workspace and used for software validation.
+PyQt6==6.11.0
+Pillow==12.3.0
+PyYAML==6.0.3
+numpy==2.2.6
+ultralytics==8.4.155
+torch==2.14.0
+torchvision==0.29.0
+opencv-python==5.0.0.93

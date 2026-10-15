@@ -1,0 +1,1 @@
+"""Offline PCB inspection application."""
