@@ -26,16 +26,27 @@
 
 ### Clone เพื่อเทรนอีกเครื่อง
 
-Repository เก็บโค้ด configuration คู่มือ และชุดทดสอบซอฟต์แวร์ ส่วน dataset/ZIP, น้ำหนักโมเดล, ผลการเทรน, TensorBoard log, virtual environment และรายงานต้นฉบับใน `report/` ไม่ถูกอัปโหลด ต้องเตรียมไฟล์ข้อมูลบนแต่ละเครื่องเอง
+Repository เก็บโค้ด configuration คู่มือ ชุดทดสอบซอฟต์แวร์ และ ZIP ชุดข้อมูล `PCB Defect.v1-yolov5.yolov11.zip` ผ่าน Git LFS ส่วนโฟลเดอร์ dataset ที่แตกแล้ว น้ำหนักโมเดล ผลการเทรน TensorBoard log virtual environment และรายงานต้นฉบับใน `report/` ไม่ถูกอัปโหลด
+
+ติดตั้ง Git และ Git LFS บนเครื่องใหม่ก่อน แล้วรัน:
 
 ```powershell
+git lfs install
 git clone https://github.com/Jadsadar/Yolo11_PCB_pre-operator.git
 cd Yolo11_PCB_pre-operator
+git lfs pull
 py -3.10 -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements-train.txt
 ```
 
-แตก dataset ไว้ในโฟลเดอร์ชั่วคราว แล้วนำเฉพาะโฟลเดอร์ `train/`, `valid/`, `test/` มาวางข้าง `data.yaml` ของ repo ให้แต่ละโฟลเดอร์มี `images/` และ `labels/` ตามผังด้านล่าง ใช้ `data.yaml` ที่มากับ repo เนื่องจากแก้ path ให้ตรงโครงสร้างแล้ว
+บน repo ที่ clone ใหม่ แตก dataset ไว้ในโฟลเดอร์ชั่วคราว แล้วนำเฉพาะโฟลเดอร์ `train/`, `valid/`, `test/` มาวางข้าง `data.yaml` ของ repo ให้แต่ละโฟลเดอร์มี `images/` และ `labels/` ตามผังด้านล่าง ใช้ `data.yaml` ที่มากับ repo เนื่องจากแก้ path ให้ตรงโครงสร้างแล้ว:
+
+```powershell
+Expand-Archive -LiteralPath '.\PCB Defect.v1-yolov5.yolov11.zip' -DestinationPath '.\tmp\dataset'
+Move-Item -Path '.\tmp\dataset\train', '.\tmp\dataset\valid', '.\tmp\dataset\test' -Destination '.'
+```
+
+หาก ZIP มีขนาดเพียงร้อยกว่าไบต์และเปิดไม่ได้ แสดงว่ายังเป็น LFS pointer ให้รัน `git lfs pull` เพื่อดาวน์โหลดไฟล์ข้อมูลจริงก่อนแตก archive
 
 ```powershell
 # ดาวน์โหลดน้ำหนักตั้งต้นและตรวจ checksum โดยไม่เริ่มเทรน

@@ -15,6 +15,7 @@ htmlcov/
 /test/
 /datasets/
 *.zip
+!/PCB Defect.v1-yolov5.yolov11.zip
 *.7z
 *.rar
 *.tar
