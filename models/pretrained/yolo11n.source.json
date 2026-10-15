@@ -1,0 +1,11 @@
+{
+  "source": "https://github.com/ultralytics/assets/releases/download/v8.4.0/yolo11n.pt",
+  "downloaded_at": "2026-10-15T16:48:05.169578+07:00",
+  "file": "yolo11n.pt",
+  "size_bytes": 5613764,
+  "sha256": "0ebbc80d4a7680d14987a577cd21342b65ecfd94632bd9a8da63ae6417644ee1",
+  "task": "detect",
+  "pretrained_classes": 80,
+  "architecture": "yolo11n.yaml",
+  "training_started": false
+}

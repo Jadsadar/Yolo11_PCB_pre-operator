@@ -7,3 +7,4 @@
 .gitignore text eol=lf
 .gitattributes text eol=lf
 PCB[[:space:]]Defect.v1-yolov5.yolov11.zip filter=lfs diff=lfs merge=lfs -text
+models/pretrained/yolo11n.pt filter=lfs diff=lfs merge=lfs -text

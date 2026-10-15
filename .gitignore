@@ -33,9 +33,11 @@ events.out.tfevents.*
 
 # Downloaded/trained weights and generated model bundle metadata
 models/**/*.pt
+!/models/pretrained/yolo11n.pt
 models/**/*.onnx
 models/**/metadata.json
 models/**/*.source.json
+!/models/pretrained/yolo11n.source.json
 *.download
 
 # Machine-specific runtime and editor settings

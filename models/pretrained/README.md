@@ -4,6 +4,6 @@
 
 ข้อมูลแหล่งดาวน์โหลดและ SHA-256 อยู่ใน `yolo11n.source.json` ค่า `model` ใน `configs/train.yaml` อ้างถึงไฟล์นี้แล้ว
 
-น้ำหนักและ metadata ดาวน์โหลดไม่เก็บใน Git เครื่องใหม่เตรียมได้ด้วย `python -m scripts.download_pretrained` จากโฟลเดอร์ repo สคริปต์ตรวจ SHA-256 และไม่เริ่มเทรน
+เก็บน้ำหนักตั้งต้นนี้ใน Git LFS และเก็บ `yolo11n.source.json` ใน Git แล้ว เครื่องใหม่ใช้ `git pull` และ `git lfs pull` เพื่อรับไฟล์จริง ตรวจ SHA-256 ได้ด้วย `python -m scripts.download_pretrained` ซึ่งจะใช้ไฟล์เดิมเมื่อ checksum ตรงและไม่เริ่มเทรน
 
 คำสั่ง dry run ไม่ดาวน์โหลดหรือโหลดน้ำหนัก และไม่เริ่มฝึก โครงการนี้ยังไม่ได้สั่งเทรนโมเดล

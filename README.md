@@ -26,7 +26,7 @@
 
 ### Clone เพื่อเทรนอีกเครื่อง
 
-Repository เก็บโค้ด configuration คู่มือ ชุดทดสอบซอฟต์แวร์ และ ZIP ชุดข้อมูล `PCB Defect.v1-yolov5.yolov11.zip` ผ่าน Git LFS ส่วนโฟลเดอร์ dataset ที่แตกแล้ว น้ำหนักโมเดล ผลการเทรน TensorBoard log virtual environment และรายงานต้นฉบับใน `report/` ไม่ถูกอัปโหลด
+Repository เก็บโค้ด configuration คู่มือ ชุดทดสอบซอฟต์แวร์ พร้อม ZIP ชุดข้อมูล `PCB Defect.v1-yolov5.yolov11.zip` และน้ำหนักตั้งต้น `models/pretrained/yolo11n.pt` ผ่าน Git LFS ส่วนโฟลเดอร์ dataset ที่แตกแล้ว น้ำหนักที่เทรนเอง ผลการเทรน TensorBoard log virtual environment และรายงานต้นฉบับใน `report/` ไม่ถูกอัปโหลด
 
 ติดตั้ง Git และ Git LFS บนเครื่องใหม่ก่อน แล้วรัน:
 
@@ -49,7 +49,7 @@ Move-Item -Path '.\tmp\dataset\train', '.\tmp\dataset\valid', '.\tmp\dataset\tes
 หาก ZIP มีขนาดเพียงร้อยกว่าไบต์และเปิดไม่ได้ แสดงว่ายังเป็น LFS pointer ให้รัน `git lfs pull` เพื่อดาวน์โหลดไฟล์ข้อมูลจริงก่อนแตก archive
 
 ```powershell
-# ดาวน์โหลดน้ำหนักตั้งต้นและตรวจ checksum โดยไม่เริ่มเทรน
+# ตรวจ checksum น้ำหนักที่รับผ่าน Git LFS (ดาวน์โหลดจากต้นทางหากไฟล์ยังไม่มี)
 .\.venv\Scripts\python.exe -m scripts.download_pretrained
 
 # ตรวจชุดข้อมูลและสร้างแผนฝึกของเครื่องนี้
