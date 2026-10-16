@@ -9,11 +9,12 @@ lr0: 0.001
 patience: 20
 seed: 42
 deterministic: true
-device: cpu
+device: 0  # First NVIDIA CUDA GPU; use cpu for machines without CUDA.
 workers: 0
 amp: false
 cache: false
 plots: true
+val: true  # Validate every epoch for per-class progress logging.
 tensorboard: true
 project: ../experiments
 name: pcb_yolo11n

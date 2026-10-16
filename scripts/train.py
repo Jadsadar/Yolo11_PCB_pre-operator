@@ -70,7 +70,7 @@ def main():
     prepare_ultralytics()
     from ultralytics import YOLO
     from app.model_registry import sha256_file
-    from .tensorboard_logging import configure_tensorboard, flush_tensorboard, close_tensorboard
+    from .tensorboard_logging import configure_tensorboard, flush_tensorboard, close_tensorboard, PerClassMetricsLogger
 
     settings = dict(plan["settings"])
     tensorboard_enabled = settings.pop("tensorboard")
@@ -87,6 +87,7 @@ def main():
     plan["tensorboard_log_dir"] = str(run_dir) if tensorboard_enabled else None
     (run_dir / "experiment.json").write_text(json.dumps(plan, indent=2), encoding="utf-8")
     model = YOLO(weights, task="detect")
+    model.add_callback("on_fit_epoch_end", PerClassMetricsLogger(tensorboard_callbacks))
     if tensorboard_enabled:
         # This event follows on_fit_epoch_end, after native metrics have been written.
         model.add_callback("on_train_epoch_start", lambda trainer: flush_tensorboard(tensorboard_callbacks))

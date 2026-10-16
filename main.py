@@ -68,8 +68,8 @@ class MainWindow(QMainWindow):
         self.state.start()
 
     def choose_model(self):
-        path, _ = QFileDialog.getOpenFileName(self, "เลือก best.pt พร้อม metadata.json ในโฟลเดอร์เดียวกัน",
-                                             str(self.state.weights.parent), "YOLO weights (*.pt)")
+        path, _ = QFileDialog.getOpenFileName(self, "เลือกโมเดลพร้อม metadata.json ในโฟลเดอร์เดียวกัน",
+                                             str(self.state.weights.parent), "YOLO models (*.pt *.xml)")
         if path:
             self.state.reload_model(Path(path))
 

@@ -6,6 +6,7 @@ from PyQt6.QtWidgets import (QAbstractItemView, QGroupBox, QHBoxLayout, QHeaderV
 
 from .. import config
 from ..image_view import ImageView
+from ..display_format import thai_detection_time
 
 
 def class_summary(detections):
@@ -35,11 +36,12 @@ class ResultPage(QWidget):
         self.summary.setTextFormat(Qt.TextFormat.PlainText)
         self.summary.setWordWrap(True)
         layout.addWidget(self.summary)
-        self.table = QTableWidget(0, 7)
-        self.table.setHorizontalHeaderLabels(["คลาส", "Confidence", "x1", "y1", "x2", "y2", "ประเภท"])
+        self.table = QTableWidget(0, 8)
+        self.table.setHorizontalHeaderLabels(["คลาส", "Confidence (%)", "x1", "y1", "x2", "y2", "ประเภท", "วันเวลาที่พบ"])
         self.table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
         self.table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
         self.table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)
+        self.table.horizontalHeader().setSectionResizeMode(7, QHeaderView.ResizeMode.ResizeToContents)
         self.table.verticalHeader().hide()
         self.table.setMaximumHeight(190)
         layout.addWidget(self.table, 1)
@@ -56,18 +58,19 @@ class ResultPage(QWidget):
         self.summary.setText("ยังไม่มีผลตรวจจับ")
         self.save_status.clear()
 
-    def fill_detections(self, detections):
+    def fill_detections(self, detections, detected_at=""):
         self.table.setRowCount(len(detections))
+        detected_time = thai_detection_time(detected_at)
         for row, d in enumerate(sorted(detections, key=lambda item: -item.confidence)):
-            values = [d.class_label, f"{d.confidence:.3f}", f"{d.x1:.1f}", f"{d.y1:.1f}",
-                      f"{d.x2:.1f}", f"{d.y2:.1f}", d.class_name]
+            values = [d.class_label, f"{d.confidence:.2%}", f"{d.x1:.1f}", f"{d.y1:.1f}",
+                      f"{d.x2:.1f}", f"{d.y2:.1f}", d.class_name, detected_time]
             for col, value in enumerate(values):
                 self.table.setItem(row, col, QTableWidgetItem(value))
 
     def show_result(self, result, saved):
         self.original.set_image(result.original)
         self.annotated.set_image(result.annotated)
-        self.fill_detections(result.detections)
+        self.fill_detections(result.detections, result.detected_at)
         prefix = "[ผลจำลองสำหรับทดสอบหน้าจอ] " if result.is_mock else ""
         message = (f"พบความเสียหาย {len(result.detections)} ตำแหน่ง — {class_summary(result.detections)}"
                    if result.detections else "ไม่พบความเสียหายตามเกณฑ์ที่ตั้งไว้")

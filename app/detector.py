@@ -32,12 +32,21 @@ class YoloBackend:
     is_mock = False
 
     def __init__(self, weights: Path):
+        weights = Path(weights)
         metadata = read_metadata(weights)
         from .runtime import prepare_ultralytics
         prepare_ultralytics()
         from ultralytics import YOLO
 
         self.model = YOLO(str(weights), task="detect")
+        self.is_openvino = weights.suffix.lower() == ".xml"
+        if self.is_openvino:
+            # Pin Intel CPU before lazy backend initialization, including names lookup.
+            self.model.overrides["device"] = "intel:cpu"
+            # Compile and warm up in the loading worker before accepting the first image.
+            size = int(metadata["imgsz"])
+            self.model.predict(source=Image.new("RGB", (size, size)), imgsz=size,
+                               device="intel:cpu", verbose=False)
         if self.model.task != "detect":
             raise ValueError("Model task is not object detection")
         validate_names(self.model.names)
@@ -46,7 +55,8 @@ class YoloBackend:
     def predict(self, image: Image.Image, request: DetectionRequest):
         # PIL RGB is supported directly; Ultralytics returns xyxy in original image pixels.
         prediction = self.model.predict(source=image, conf=request.conf, iou=request.iou,
-                                        imgsz=request.imgsz, verbose=False)[0]
+                                        imgsz=request.imgsz, verbose=False,
+                                        **({"device": "intel:cpu"} if self.is_openvino else {}))[0]
         boxes = []
         for box in prediction.boxes:
             x1, y1, x2, y2 = map(float, box.xyxy[0].tolist())

@@ -22,19 +22,23 @@ htmlcov/
 *.tar.gz
 *.tgz
 
-# Local data, experiment outputs, and TensorBoard events
+# Local data and temporary outputs
 data/*.db*
 outputs/
 logs/
 tmp/
-experiments/
 events.out.tfevents.*
+# Keep experiment results, weights, and TensorBoard graphs portable through Git.
+!/experiments/**/events.out.tfevents.*
 /reports/*.json
 
 # Downloaded/trained weights and generated model bundle metadata
 models/**/*.pt
 !/models/pretrained/yolo11n.pt
 models/**/*.onnx
+models/**/*.xml
+models/**/*.bin
+models/**/metadata.yaml
 models/**/metadata.json
 models/**/*.source.json
 !/models/pretrained/yolo11n.source.json

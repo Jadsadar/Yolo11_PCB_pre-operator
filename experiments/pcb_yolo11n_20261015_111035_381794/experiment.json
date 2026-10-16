@@ -1,0 +1,97 @@
+{
+  "mode": "execute",
+  "training_started": true,
+  "created_at": "2026-10-15T11:10:32.581901+07:00",
+  "settings": {
+    "data": "C:\\Users\\student\\6610110050\\Yolo11_PCB_pre-operator\\data.yaml",
+    "model": "C:\\Users\\student\\6610110050\\Yolo11_PCB_pre-operator\\models\\pretrained\\yolo11n.pt",
+    "epochs": 100,
+    "batch": 8,
+    "imgsz": 640,
+    "optimizer": "AdamW",
+    "lr0": 0.001,
+    "patience": 20,
+    "seed": 42,
+    "deterministic": true,
+    "device": "cpu",
+    "workers": 0,
+    "amp": false,
+    "cache": false,
+    "plots": true,
+    "tensorboard": true,
+    "project": "C:\\Users\\student\\6610110050\\Yolo11_PCB_pre-operator\\experiments",
+    "name": "pcb_yolo11n",
+    "degrees": 5.0,
+    "translate": 0.05,
+    "scale": 0.2,
+    "fliplr": 0.5,
+    "flipud": 0.0,
+    "hsv_h": 0.015,
+    "hsv_s": 0.3,
+    "hsv_v": 0.2,
+    "mosaic": 0.0,
+    "mixup": 0.0
+  },
+  "versions": {
+    "ultralytics": "8.4.155",
+    "torch": "2.14.0",
+    "torchvision": "0.29.0",
+    "numpy": "2.2.6",
+    "Pillow": "12.3.0",
+    "PyYAML": "6.0.3",
+    "tensorboard": "2.21.0"
+  },
+  "python": "3.10.11",
+  "platform": "Windows-10-10.0.26200-SP0",
+  "dataset_manifest_sha256": "1fd3df4454877b3253a05f8295e9d3c4bd3e08433b8479522067ec01041c7c97",
+  "counts": {
+    "train": {
+      "images": 5810,
+      "labels": 5810,
+      "background_images": 1758,
+      "boxes_by_class": {
+        "missing_hole": 1099,
+        "mouse_bite": 1266,
+        "open_circuit": 1153,
+        "short": 1329,
+        "spur": 1199,
+        "spurious_copper": 1168
+      }
+    },
+    "val": {
+      "images": 556,
+      "labels": 556,
+      "background_images": 184,
+      "boxes_by_class": {
+        "missing_hole": 116,
+        "mouse_bite": 86,
+        "open_circuit": 101,
+        "short": 92,
+        "spur": 115,
+        "spurious_copper": 132
+      }
+    },
+    "test": {
+      "images": 276,
+      "labels": 276,
+      "background_images": 90,
+      "boxes_by_class": {
+        "missing_hole": 70,
+        "mouse_bite": 59,
+        "open_circuit": 37,
+        "short": 50,
+        "spur": 42,
+        "spurious_copper": 64
+      }
+    }
+  },
+  "blockers": [],
+  "leakage_review_required": true,
+  "dataset_warnings": [
+    "39 exact image hash groups cross dataset splits",
+    "Local image count 6642 differs from report/export count 6652"
+  ],
+  "leakage_note": "Learning experiment; duplicate images exist across splits, evaluation is not independent",
+  "pretrained_sha256": "0ebbc80d4a7680d14987a577cd21342b65ecfd94632bd9a8da63ae6417644ee1",
+  "tensorboard_log_dir": "C:\\Users\\student\\6610110050\\Yolo11_PCB_pre-operator\\experiments\\pcb_yolo11n_20261015_111035_381794"
+}

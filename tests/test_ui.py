@@ -34,7 +34,7 @@ class UITests(unittest.TestCase):
         self.root = Path(self.temp.name)
         self.path = self.root / "ภาพทดสอบ.png"
         Image.new("RGB", (200, 160), "white").save(self.path)
-        self.dialogs = patch.object(QMessageBox, "information", return_value=QMessageBox.StandardButton.Ok)
+        self.dialogs = patch.object(QMessageBox, "exec", return_value=QMessageBox.StandardButton.Ok)
         self.errors = patch.object(QMessageBox, "warning", return_value=QMessageBox.StandardButton.Ok)
         self.dialog_mock = self.dialogs.start()
         self.errors.start()

@@ -43,4 +43,15 @@ def read_metadata(weights: Path) -> dict:
         raise ValueError("Missing model ID")
     if metadata.get("sha256") != sha256_file(weights):
         raise ValueError("Model checksum does not match metadata")
+    if weights.suffix.lower() == ".xml":
+        if metadata.get("format") != "openvino":
+            raise ValueError("OpenVINO model requires format=openvino metadata")
+        required = {weights.name, weights.with_suffix(".bin").name, "metadata.yaml"}
+        checksums = metadata.get("files", {})
+        if set(checksums) != required:
+            raise ValueError("OpenVINO bundle must include XML, BIN and metadata.yaml checksums")
+        for name, checksum in checksums.items():
+            target = weights.parent / name
+            if not target.is_file() or sha256_file(target) != checksum:
+                raise ValueError(f"OpenVINO bundle checksum mismatch: {name}")
     return metadata

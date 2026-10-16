@@ -9,6 +9,7 @@ from PyQt6.QtWidgets import (QAbstractItemView, QComboBox, QHBoxLayout, QHeaderV
 
 from .. import config
 from ..db import Repository
+from ..display_format import thai_detection_time
 from .result_page import ResultPage, class_summary
 
 
@@ -36,11 +37,12 @@ class HistoryPage(QWidget):
         self.note.setWordWrap(True)
         layout.addWidget(self.note)
         self.table = QTableWidget(0, 6)
-        self.table.setHorizontalHeaderLabels(["วันเวลา", "ไฟล์ต้นฉบับ", "คลาส", "ตำแหน่ง", "Confidence สูงสุด", "โมเดล"])
+        self.table.setHorizontalHeaderLabels(["วันเวลาที่พบ", "ไฟล์ต้นฉบับ", "คลาส", "ตำแหน่ง", "Confidence สูงสุด (%)", "โมเดล"])
         self.table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
         self.table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
         self.table.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
         self.table.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
+        self.table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
         self.table.itemSelectionChanged.connect(self.show_selected)
         self.table.setMaximumHeight(200)
         layout.addWidget(self.table)
@@ -60,8 +62,8 @@ class HistoryPage(QWidget):
             self.table.blockSignals(True)
             self.table.setRowCount(len(self.rows))
             for row, event in enumerate(self.rows):
-                values = [event["detected_at"], event["original_name"], event["classes"],
-                          str(event["detection_count"]), f'{event["max_confidence"]:.3f}', event["model_id"]]
+                values = [thai_detection_time(event["detected_at"]), event["original_name"], event["classes"],
+                          str(event["detection_count"]), f'{event["max_confidence"]:.2%}', event["model_id"]]
                 for col, value in enumerate(values):
                     self.table.setItem(row, col, QTableWidgetItem(value))
             self.table.clearSelection()
@@ -80,9 +82,9 @@ class HistoryPage(QWidget):
             with Repository(self.db_path) as repo:
                 detections = repo.detections_of(event["id"])
             self.details.clear()
-            self.details.fill_detections(detections)
+            self.details.fill_detections(detections, event["detected_at"])
             self.details.summary.setText(
-                f'{event["original_name"]} | {event["detected_at"]}\n'
+                f'{event["original_name"]} | {thai_detection_time(event["detected_at"])}\n'
                 f'{event["detection_count"]} ตำแหน่ง — {class_summary(detections)}\n'
                 f'โมเดล {event["model_id"]} | inference {event["inference_ms"]:.1f} ms | '
                 f'Confidence {event["conf_threshold"]} | NMS IoU {event["iou_threshold"]}')

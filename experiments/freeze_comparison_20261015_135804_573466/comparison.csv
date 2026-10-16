@@ -1,0 +1,3 @@
+variant,epochs,best_epoch,best_precision,best_recall,best_mAP50,best_mAP50_95,final_mAP50_95,training_seconds,average_epoch_seconds,wall_seconds,run_dir
+freeze2,60,50,0.95119,0.886,0.89841,0.49807,0.49728,8189.6,136.49333333333334,8215.55,C:\Users\student\6610110050\Yolo11_PCB_pre-operator\experiments\freeze_comparison_20261015_135804_573466\runs\freeze2_20261015_135818_009896
+no_freeze,60,50,0.96448,0.87514,0.9004,0.50618,0.49707,8759.66,145.99433333333334,8786.92,C:\Users\student\6610110050\Yolo11_PCB_pre-operator\experiments\freeze_comparison_20261015_135804_573466\runs\no_freeze_20261015_161514_894075

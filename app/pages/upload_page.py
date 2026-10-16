@@ -1,5 +1,6 @@
 """Single-image inspection, model readiness, and one alert per result."""
 from pathlib import Path
+from html import escape
 
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import (QDoubleSpinBox, QFileDialog, QHBoxLayout, QLabel,
@@ -8,7 +9,7 @@ from PyQt6.QtWidgets import (QDoubleSpinBox, QFileDialog, QHBoxLayout, QLabel,
 
 from .. import config
 from ..image_service import read_image
-from .result_page import ResultPage, class_summary
+from .result_page import ResultPage
 
 
 class UploadPage(QWidget):
@@ -125,7 +126,16 @@ class UploadPage(QWidget):
         if result.detections and self._last_alert_event != result.event_id:
             self._last_alert_event = result.event_id
             title = "ผลจำลอง — ทดสอบหน้าจอ" if result.is_mock else "พบความเสียหายบน PCB"
-            QMessageBox.information(self, title,
-                f"ภาพ: {result.request.source_path.name}\n"
-                f"พบ {len(result.detections)} ตำแหน่ง\n{class_summary(result.detections)}\n\n"
-                f"{self.result_view.save_status.text()}")
+            classes = "".join(
+                f'<p><span style="font-size:24pt; font-weight:700; color:#d32f2f;">'
+                f'{escape(config.class_label(class_id))}</span>'
+                f' &nbsp;({count} ตำแหน่ง)</p>'
+                for class_id, count in sorted(result.counts.items()))
+            text = (f'<p>พบความเสียหายประเภท</p>{classes}'
+                    f'<p>ภาพ: {escape(result.request.source_path.name)}<br>'
+                    f'พบทั้งหมด {len(result.detections)} ตำแหน่ง</p>'
+                    f'<p>{escape(self.result_view.save_status.text())}</p>')
+            dialog = QMessageBox(QMessageBox.Icon.Warning, title, text,
+                                 QMessageBox.StandardButton.Ok, self)
+            dialog.setTextFormat(Qt.TextFormat.RichText)
+            dialog.exec()

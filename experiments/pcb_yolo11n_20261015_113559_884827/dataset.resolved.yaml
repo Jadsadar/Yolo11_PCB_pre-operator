@@ -1,0 +1,12 @@
+path: C:\Users\student\6610110050\Yolo11_PCB_pre-operator
+names:
+- missing_hole
+- mouse_bite
+- open_circuit
+- short
+- spur
+- spurious_copper
+nc: 6
+train: C:\Users\student\6610110050\Yolo11_PCB_pre-operator\train\images
+val: C:\Users\student\6610110050\Yolo11_PCB_pre-operator\valid\images
+test: C:\Users\student\6610110050\Yolo11_PCB_pre-operator\test\images

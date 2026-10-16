@@ -22,6 +22,28 @@
 
 ค่าเริ่มต้นอ่าน `models/pcb/best.pt` และ `models/pcb/metadata.json` หากไฟล์ยังไม่มีหรือ mapping/checksum ผิด แอปแสดงว่าโมเดลไม่พร้อมและปิดปุ่มตรวจจับ สามารถเลือกชุดโมเดลอื่นผ่านปุ่ม **เลือกโมเดล / โหลดใหม่** หรือใช้ `--model <path-to-best.pt>` โดย metadata ต้องอยู่ในโฟลเดอร์เดียวกัน
 
+## ตรวจภาพทีละภาพด้วย OpenVINO บน CPU
+
+ใช้ OpenVINO FP32 สำหรับตรวจภาพบน Intel CPU โดยโมเดล `.pt` เดิมยังใช้ได้ ติดตั้งและแปลงชุดโมเดลที่มี `metadata.json` แล้ว เช่นโมเดล 2 epochs:
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install -r requirements-openvino.txt
+.\.venv\Scripts\python.exe -m scripts.export_openvino --weights models/pcb-2epochs-ui/best.pt --output models/pcb-2epochs-openvino
+.\.venv\Scripts\python.exe main.py --model models/pcb-2epochs-openvino/best_openvino_model.xml
+```
+
+สคริปต์สร้างโฟลเดอร์ใหม่พร้อม `best_openvino_model.xml`, `best_openvino_model.bin`, `metadata.yaml` และ `metadata.json` ตรวจ checksum ของไฟล์ที่ใช้รันก่อนโหลด ไม่เขียนทับโฟลเดอร์ที่มีอยู่แล้ว การแปลงใช้ CPU และไม่ต้องเทรนใหม่ ใน UI เลือก `.xml` ได้ด้วยปุ่มเลือกโมเดล ต้องเก็บไฟล์ทั้งชุดไว้ด้วยกัน ชื่อ XML ต้องมี `_openvino_model` เพื่อให้ Ultralytics เวอร์ชันนี้รู้จักรูปแบบ
+
+โมเดล OpenVINO ใช้ CPU โดยระบุ `intel:cpu` แม้มี NVIDIA GPU ใช้งานได้ มีการ compile/warm-up ตอนโหลดโมเดลใน worker ก่อนเปิดให้ตรวจภาพ รองรับขนาดภาพเข้าโมเดลที่ปรับได้ผ่าน dynamic shapes กรอบ คลาส confidence การบันทึกหลักฐานและประวัติใช้ขั้นตอนเดิม ความเร็วจริงขึ้นอยู่กับเครื่องและงานที่กำลังทำพร้อมกัน ควรเทียบผลตรวจและ validation กับ `.pt` ก่อนใช้จริง; FP32 ไม่รับประกันว่าผลตัวเลขจะตรงทุกหลัก
+
+ทดสอบเวลา CPU และความสอดคล้องของกรอบบนตัวอย่าง validation 10 ภาพที่กระจายตามลำดับไฟล์ หลัง warm-up ภาพละ 3 ครั้ง:
+
+```powershell
+.\.venv\Scripts\python.exe -m scripts.benchmark_openvino --reference models/pcb-2epochs-ui/best.pt --openvino models/pcb-2epochs-openvino/best_openvino_model.xml
+```
+
+ผลอยู่ใน `reports/openvino_benchmark.json` รายงาน median เวลาอ่าน/ตรวจ/วาดภาพ (ไม่รวม UI หรือการบันทึกลงดิสก์), เวลา inference และจำนวนกรอบที่คลาสตรงกันและ IoU ≥ 0.99 การตรวจตัวอย่างนี้ไม่แทนการประเมิน mAP/Recall บน validation ทั้งชุด และเวลาขณะเทรนพร้อมกันอาจเปลี่ยนได้
+
 ## ติดตั้งบนเครื่องใหม่
 
 ### Clone เพื่อเทรนอีกเครื่อง
@@ -123,7 +145,24 @@ pre operator internship/
 
 ## เตรียมโค้ดฝึกโดยยังไม่เริ่มเทรน
 
-ค่าฝึกอยู่ที่ [configs/train.yaml](configs/train.yaml) ค่าเริ่มต้นใช้ YOLO11n, 640 px, CPU, batch 8, 100 epochs และ seed 42 ทั้งหมดเป็นค่าตั้งต้นเพื่อทดลองภายหลัง
+ค่าฝึกอยู่ที่ [configs/train.yaml](configs/train.yaml) ค่าเริ่มต้นใช้ YOLO11n, 640 px, CUDA GPU 0, batch 16, 100 epochs และ seed 42 ทั้งหมดเป็นค่าตั้งต้นเพื่อทดลองภายหลัง
+
+### NVIDIA CUDA setup (PowerShell)
+
+Install the CUDA build into the project environment, then verify GPU access:
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install -r requirements-cuda.txt
+.\.venv\Scripts\python.exe -c "import torch; print(torch.__version__); print('CUDA available:', torch.cuda.is_available()); print(torch.cuda.get_device_name(0))"
+```
+
+This uses the CUDA 12.6 PyTorch wheels and requires a compatible NVIDIA driver. The training config selects GPU `0`; change `device` to `cpu` for CPU training. Batch size 16 and full precision (`amp: false`) are the initial settings for the local 6 GB GPU. If GPU memory runs out, reduce `batch` to 12 or 8. Compare epoch times to check whether the larger batch improves throughput.
+
+Run training from the project root. The note records the known duplicate images across dataset splits, which limit evaluation independence:
+
+```powershell
+.\.venv\Scripts\python.exe -m scripts.train --config configs/train.yaml --execute --leakage-note "Learning experiment; duplicate images exist across splits, evaluation is not independent"
+```
 
 ```powershell
 .\.venv\Scripts\python.exe -m scripts.train
@@ -146,6 +185,18 @@ pre operator internship/
 
 สร้าง experiment แยกตาม timestamp พร้อม config, เวอร์ชันไลบรารี, dataset audit/manifest, น้ำหนัก และกราฟของ Ultralytics ไม่ประเมิน test หรือส่งน้ำหนักเข้าแอปอัตโนมัติ
 
+## เปรียบเทียบ freeze กับไม่ freeze รอบละ 60 epochs
+
+รันคำสั่งเดียวเพื่อฝึกต่อกันบน GPU เดียว: รอบแรก `freeze: 2` ล็อกโมดูล 0–1 (Conv สองโมดูลแรก) ตลอดรอบฝึก (ไม่มีการปลดอัตโนมัติ) รอบสอง `freeze: 0` ทั้งสองเริ่มจาก pretrained เดียวกัน ใช้ seed เดียวกัน, batch 8 และ early stopping (`patience: 15`) ฝึกสูงสุดรอบละ 60 epochs หยุดเมื่อคะแนน validation ไม่ดีขึ้นต่อเนื่อง 15 epochs แต่ละรอบอาจหยุดคนละ epoch สรุปผลใช้จำนวน epoch ที่ฝึกจริง และเริ่มรอบถัดไปอัตโนมัติเมื่อรอบแรกหยุดตามปกติ ค่าฝึกอื่นอ่านจาก `configs/train.yaml` โดยไม่แก้ไฟล์หลัก
+
+```powershell
+.\.venv\Scripts\python.exe -m scripts.compare_freeze --execute
+```
+
+รันโดยไม่ใส่ `--execute` เพื่อตรวจแผนอย่างเดียว ผลอยู่ใน `experiments/freeze_comparison_<timestamp>/` แยกสองรอบใน `runs/` พร้อมโมเดล, TensorBoard และ CSV รายคลาส สรุป `comparison.csv` หลังแต่ละรอบมีคะแนนจาก epoch ที่ mAP50-95 สูงสุด, คะแนนสุดท้าย, เวลาเฉลี่ยต่อ epoch และเวลารวม ค่าที่ขึ้นต้น `best_` ทั้งหมดมาจาก epoch เดียวกัน ไม่ใช่ค่าสูงสุดของแต่ละ metric แยกกัน
+
+หากรอบใดล้มเหลวจะหยุดก่อนเริ่มรอบถัดไป หากมีการเทรนอื่นอยู่ ให้รอจบก่อนเริ่มคำสั่งนี้ เปรียบเทียบความแม่นยำด้วย validation mAP50-95 และพิจารณาความเร็วแยกกัน ยังไม่ใช้ test ตัดสิน และการทดลอง seed เดียวพร้อมภาพซ้ำข้าม split ยังไม่ยืนยันผลกับภาพใหม่จริง
+
 ## ดูกราฟการเทรนด้วย TensorBoard
 
 ติดตั้ง dependency สำหรับงานฝึกครั้งแรก:
@@ -163,6 +214,10 @@ pre operator internship/
 ```
 
 เปิด <http://localhost:6006> แล้วเลือก run ในแถบด้านซ้ายเพื่อเปรียบเทียบกราฟ Loss ของ train/validation, Precision, Recall, mAP@0.5, mAP@0.5:0.95 และ Learning Rate กราฟเริ่มมีข้อมูลเมื่อการฝึกผ่าน epoch ที่มีผลแล้ว ใช้ Ctrl+C ในหน้าต่าง TensorBoard เพื่อหยุดเซิร์ฟเวอร์ โดยไม่หยุดกระบวนการฝึกที่อยู่อีกหน้าต่าง
+
+รอบฝึกที่เริ่มด้วยโค้ดใหม่นี้บันทึกค่าจาก validation แยกคลาสทุก epoch ที่ **Scalars → per_class → ชื่อคลาส** ได้แก่ `precision`, `recall`, `f1`, `AP50`, `AP50_95` และเขียน `per_class_metrics.csv` ในโฟลเดอร์ experiment เดียวกัน แม้ปิด TensorBoard ก็ยังเก็บ CSV ไว้ เลือก epoch 10, 20, … เพื่อนำไปทำตารางย้อนหลังได้ ส่วน loss รวมยังอยู่ใน `results.csv` และกราฟเดิม
+
+ค่า Precision, Recall และ F1 ใช้จุด confidence ที่ Ultralytics เลือกจาก validation ไม่ใช่ confidence ของแอป คลาสที่ไม่มี ground truth ใน validation จะไม่สร้างคะแนนแทนขึ้นมา การตรวจ `best.pt` ตอนจบไม่เขียนทับค่าของ epoch สุดท้าย การแก้โค้ดไม่มีผลกับ process ที่กำลังเทรนอยู่และไม่เติมค่ารายคลาสให้ log เก่า ต้องเริ่มรอบใหม่เพื่อเก็บประวัตินี้
 
 หากต้องการดูรอบเดียว ให้เปลี่ยน `--logdir` เป็นโฟลเดอร์ของรอบนั้น ปิดการเก็บ log ได้ด้วย `tensorboard: false` การทำ dry run ไม่สร้าง event log และการเปิด TensorBoard ไม่ได้เริ่มการฝึกเอง กราฟย้อนหลังของรอบที่ไม่ได้เก็บ TensorBoard log จะไม่ปรากฏอัตโนมัติ
 

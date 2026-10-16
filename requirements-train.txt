@@ -1,4 +1,4 @@
 -r requirements.txt
 tensorboard==2.21.0
-# Install a compatible CUDA build of torch/torchvision first if training on GPU.
+# For NVIDIA GPU training, install requirements-cuda.txt instead.
 # UI demo and dataset audit do not import ultralytics or torch.

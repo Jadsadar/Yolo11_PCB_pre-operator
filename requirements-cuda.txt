@@ -1,0 +1,6 @@
+# CUDA 12.6 build for NVIDIA GPU training on Windows/Linux.
+# Install with: python -m pip install -r requirements-cuda.txt
+--extra-index-url https://download.pytorch.org/whl/cu126
+-r requirements-train.txt
+torch==2.14.0+cu126
+torchvision==0.29.0+cu126
