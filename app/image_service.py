@@ -16,7 +16,8 @@ def read_image(path: Path) -> Image.Image:
             if source.format not in {"JPEG", "PNG"}:
                 raise ValueError("เนื้อหาไฟล์ไม่ใช่ JPEG หรือ PNG")
             return ImageOps.exif_transpose(source).convert("RGB")
-    except (OSError, Image.DecompressionBombError) as exc:
+    # Ultralytics patches Pillow and may try an optional HEIF plugin after a decode failure.
+    except (OSError, ImportError, Image.DecompressionBombError) as exc:
         raise ValueError(f"ไม่สามารถอ่านไฟล์ภาพ: {path.name}") from exc
 
 

@@ -1,0 +1,6 @@
+# Keep Colab's matching CUDA torch/torchvision instead of replacing them.
+# Desktop PyQt6 is not needed to train in a notebook.
+ultralytics==8.4.155
+tensorboard==2.21.0
+PyYAML>=6.0,<7
+Pillow>=10

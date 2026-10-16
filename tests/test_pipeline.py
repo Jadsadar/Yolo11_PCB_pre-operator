@@ -146,6 +146,11 @@ class PipelineTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             validate_names(["pothole"])
 
+    def test_failed_optional_codec_import_is_reported_as_invalid_image(self):
+        with patch("app.image_service.Image.open", side_effect=ModuleNotFoundError("pi_heif")):
+            with self.assertRaises(ValueError):
+                read_image(self.source)
+
     def test_mock_deterministic_multi_class_and_no_detection(self):
         backend = MockBackend()
         first = run_detection(backend, DetectionRequest(self.source))
